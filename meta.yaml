@@ -1,6 +1,7 @@
 name: anti-bot-diagnoser
 description: JSHook workflow for anti-bot-diagnoser
 author: vmoranv
+source_repo: https://github.com/vmoranv/jshook_workflow_anti_bot_diagnoser
 tags:
   - workflow
   - anti-bot-diagnoser
