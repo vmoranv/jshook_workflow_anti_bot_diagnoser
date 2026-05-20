@@ -1,7 +1,7 @@
 import {
-  createWorkflow,
+  defineWorkflow,
+  sequenceStep,
   type WorkflowExecutionContext,
-  SequenceNodeBuilder,
 } from '@jshookmcp/extension-sdk/workflow';
 
 const workflowId = 'workflow.anti-bot-diagnoser.v1';
@@ -17,8 +17,9 @@ const workflowId = 'workflow.anti-bot-diagnoser.v1';
  *   5. Produces a detection map and remediation hints
  *   6. Records evidence for the diagnostic session
  */
-export default createWorkflow(workflowId, 'Anti-Bot Diagnoser')
-  .description(
+export default defineWorkflow(workflowId, 'Anti-Bot Diagnoser', (workflow) =>
+  workflow
+.description(
     'Compares normal vs stealth browser fingerprints, identifies bot-detection triggers (webdriver, CDP, canvas, WebRTC, timing), and produces a detection report with remediation hints.',
   )
   .tags([
@@ -47,7 +48,7 @@ export default createWorkflow(workflowId, 'Anti-Bot Diagnoser')
     const maxConcurrency = Number(ctx.getConfig(`${prefix}.parallel.maxConcurrency`, 2));
     const stealthMode = String(ctx.getConfig(`${prefix}.stealthMode`, 'patchright'));
 
-    const root = new SequenceNodeBuilder('anti-bot-diagnoser-root');
+    return sequenceStep('anti-bot-diagnoser-root', (root) => {
 
     root
       // ── Phase 1: Enable Network & Navigate ────────────────────────
@@ -197,7 +198,7 @@ export default createWorkflow(workflowId, 'Anti-Bot Diagnoser')
         },
       });
 
-    return root;
+    });
   })
   .onStart((ctx) => {
     ctx.emitMetric('workflow_runs_total', 1, 'counter', {
@@ -221,4 +222,4 @@ export default createWorkflow(workflowId, 'Anti-Bot Diagnoser')
       error: error.name,
     });
   })
-  .build();
+  );
